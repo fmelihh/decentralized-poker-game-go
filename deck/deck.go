@@ -32,7 +32,7 @@ type Card struct {
 }
 
 func (c Card) String() string {
-	return fmt.Sprintf("%d of %s %s", c.value, c.suit, c.)
+	return fmt.Sprintf("%d of %s %s", c.value, c.suit, suitToUnicode(c.suit))
 }
 
 func NewCard(s Suit, v int) Card {
