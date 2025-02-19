@@ -1,12 +1,11 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/fmelihh/decentralized-poker-game-go/deck"
-)
+import "github.com/fmelihh/decentralized-poker-game-go/p2p"
 
 func main() {
-	d := deck.New()
-	fmt.Println(d)
+	cfg := p2p.ServerConfig{
+		ListenAddr: ":3000",
+	}
+	s := p2p.NewServer(cfg)
+	s.Start()
 }
