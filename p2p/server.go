@@ -43,7 +43,7 @@ type Server struct {
 func NewServer(cfg ServerConfig) *Server {
 	return &Server{
 		ServerConfig: cfg,
-		handler:      *NewHandler(),
+		handler:      &DefaultHandler{},
 		peers:        make(map[net.Addr]*Peer),
 		msgCh:        make(chan *Message),
 		addPeer:      make(chan *Peer),
@@ -113,6 +113,10 @@ func (s *Server) loop() {
 		case peer := <-s.addPeer:
 			s.peers[peer.conn.RemoteAddr()] = peer
 			fmt.Printf("new player connected %s", peer.conn.RemoteAddr())
+		case msg := <-s.msgCh:
+			if err := s.handler.HandleMessage(msg); err != nil {
+				panic(err)
+			}
 		}
 	}
 }
