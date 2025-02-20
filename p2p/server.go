@@ -3,6 +3,7 @@ package p2p
 import (
 	"fmt"
 	"net"
+	"sync"
 )
 
 type TCPTransport struct {
@@ -12,6 +13,11 @@ type Peer struct {
 	conn net.Conn
 }
 
+func (p *Peer) Send(b []byte) error {
+	_, err := p.conn.Write(b)
+	return err
+}
+
 type ServerConfig struct {
 	ListenAddr string
 }
@@ -19,6 +25,7 @@ type ServerConfig struct {
 type Server struct {
 	ServerConfig
 
+	mu       sync.RWMutex
 	listener net.Listener
 	addPeer  chan *Peer
 	peers    map[net.Addr]*Peer
@@ -39,7 +46,7 @@ func (s *Server) Start() {
 		panic(err)
 	}
 
-	fmt.Printf("Game server running on port %s", s.ListenAddr)
+	fmt.Printf("Game server running on port %s \n", s.ListenAddr)
 	s.acceptLoop()
 
 }
@@ -62,6 +69,13 @@ func (s *Server) acceptLoop() {
 		if err != nil {
 			panic(err)
 		}
+
+		peer := &Peer{
+			conn: conn,
+		}
+		s.addPeer <- peer
+		peer.Send([]byte("GGPOKER V0.1"))
+
 		go s.handleConn(conn)
 	}
 
